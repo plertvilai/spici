@@ -26,8 +26,6 @@ import asyncio
 import aiohttp
 import aiofiles
 
-from prepare_db.parse_csv import SPCParser
-
 CAMERAS = ['SPC2' , 'SPCP2', 'SPC-BIG']
 IMG_PARAM = ['image_filename', 'image_id', 'user_labels', 'image_timestamp', 'tags']
 IMGS_PER_PAGE = 500
@@ -476,26 +474,3 @@ class SPCServer(object):
                 async with file_sem:
                     async with aiofiles.open(destpath, "wb") as f:
                         await f.write(img)
-
-    def _preprocess(self, dataframe):
-        """Preprocess dataframe"""
-
-        """
-        separate timestamps into date and time columns (all numerical)
-        make sure all of the column types are good
-        """
-        df = SPCParser.extract_dateinfo(dataframe,
-                                          date_col='image_timestamp',
-                                          drop=True, time=True)
-
-        #TODO Clean up labels here
-        # labels are only specific for cleaning prorocentrum labels atm
-        df = SPCParser.clean_labels(data=df, label_col='user_labels')
-
-        #TODO clean up tags here
-        return df
-
-
-
-
-
