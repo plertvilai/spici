@@ -17,6 +17,12 @@ class SPCDataTransformer():
 
         self.data = data
 
+        #TODO accept this as parameter initialization. Need to keep constant
+        # record of accepted classes for training and prediction
+        self.classes = {'Non-Prorocentrum':0,
+                        'Unidentified':0,
+                        'Prorocentrum':1}
+
     def transform(self, image_dir=None):
         """Transform for training/prediction data"""
 
@@ -47,7 +53,7 @@ class SPCDataTransformer():
                     return 'Non-Prorocentrum'
             elif 'False Prorocentrum' in lbl or \
                     'Prorocentrum_false_positiveal' in lbl:
-                return 'False Prorocentrum'
+                return 'Non-Prorocentrum'
             elif lbl[0] in ['Prorocentrum', 'False Non-Prorocentrum']:
                 return lbl[0]
             else:
@@ -56,6 +62,7 @@ class SPCDataTransformer():
         df = data.copy()
         df[label_col] = df.apply(lambda x: clean_up(x[label_col],
                                                     x['tags']), axis=1)
+        df['label'] = df[label_col].map(self.classes)
         return df
 
     def _extract_timestamp(self, data, time_col='image_timestamp', drop=True):
@@ -82,8 +89,3 @@ class SPCDataTransformer():
         df[image_col] = df['image_url'].apply(lambda x: os.path.join(
             image_dir, os.path.basename(x) + '.jpg'))
         return df
-
-
-
-
-
