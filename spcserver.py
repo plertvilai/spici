@@ -10,21 +10,18 @@ contact: kevin.le@gmail.com
 """
 from __future__ import print_function, division
 
-import sys
 import json
 import os
-import pandas as pd
 import numpy as np
 import datetime
 from lxml import html
-import urllib
+import urllib.request as urllib2
 import http.cookiejar
-import csv
 import pandas as pd
-import argparse
 import asyncio
 import aiohttp
 import aiofiles
+from spc.spctransformer import SPCDataTransformer
 
 CAMERAS = ['SPC2' , 'SPCP2', 'SPC-BIG']
 IMG_PARAM = ['image_filename', 'image_id', 'user_labels', 'image_timestamp', 'tags']
@@ -232,6 +229,7 @@ class SPCServer(object):
 
         loop = asyncio.get_event_loop()
         df = loop.run_until_complete(self.async_e2e_dl(self.data['url'], download))
+        df = SPCDataTransformer(data=df).transform(image_dir=output_dir)
         df.to_csv(output_csv_filename, index=False)
 
         time_done = datetime.datetime.now()
@@ -277,9 +275,9 @@ class SPCServer(object):
         assert isinstance(login_url, str)
 
         cj = http.cookiejar.CookieJar()
-        self.opener = urllib.request.build_opener(
-            urllib.request.HTTPCookieProcessor(cj),
-            urllib.request.HTTPHandler(debuglevel=1)
+        self.opener = urllib2.build_opener(
+            urllib2.HTTPCookieProcessor(cj),
+            urllib2.HTTPHandler(debuglevel=1)
         )
 
         if login_url == None:
@@ -291,8 +289,8 @@ class SPCServer(object):
         self.csrf_token = html.fromstring(login_form).xpath(
             '//input[@name="csrfmiddlewaretoken"]/@value')[0]
 
-        params = json.dumps(account_info)
-        req = urllib.Request('{}/rois/login_user'.format(self.parsed_url),
+        params = json.dumps(account_info).encode('utf8')
+        req = urllib2.Request('{}/rois/login_user'.format(self.parsed_url),
                                params, headers={'X-CSRFToken': str (self.csrf_token),
                                                 'X-Requested-With': 'XMLHttpRequest',
                                                 'User-agent': 'Mozilla/5.0',
@@ -324,7 +322,7 @@ class SPCServer(object):
 
 
 
-    def _push_submission_dict(self, label):
+    def _push_submission_dict(self, label, save=True, output_dir='labels'):
         """ Pushes data up to spc.ucsd.edu pipeline
 
         :param label: 'str' representing organism label
@@ -333,8 +331,17 @@ class SPCServer(object):
 
         #TODO Log errors with label
         try:
-            self.submit_json = json.dumps(self.submit_dict)
-            self.req1 = urllib.Request('{}/rois/label_images'.format(self.parsed_url),
+            if save:
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                json_fname = os.path.join(output_dir, f'{label.replace(" ", "_")}.json')
+                with open(json_fname, 'w', encoding='utf-8') as json_file:
+                    self.submit_json = json.dump(self.submit_dict, json_file, indent=4)
+                json_file.close()
+                print(f'Saved as {json_fname}')
+
+            self.submit_json = json.dumps(self.submit_dict).encode('utf-8')
+            self.req1 = urllib2.Request('{}/rois/label_images'.format(self.parsed_url),
                            self.submit_json, headers={'X-CSRFToken': str(self.csrf_token),
                                                  'X-Requested-With': 'XMLHttpRequest',
                                                  'User-agent': 'Mozilla/5.0',
@@ -383,7 +390,7 @@ class SPCServer(object):
 
         try:
             # Read textfile
-            self.data = pd.read_csv(textfile, sep=', ', names=['start_time', 'end_time', 'min_len', 'max_len', 'cam'])
+            self.data = pd.read_csv(textfile, sep=',', names=['start_time', 'end_time', 'min_len', 'max_len', 'cam'])
         except:
             print('{} could not be parsed correctly. Check formatting.'.format(os.path.basename(textfile)))
 

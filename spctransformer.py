@@ -23,16 +23,18 @@ class SPCDataTransformer():
                         'Unidentified':0,
                         'Prorocentrum':1}
 
-    def transform(self, image_dir=None):
+    def transform(self, image_dir=None, clean=False):
         """Transform for training/prediction data"""
 
         # Clean labels
-        self.logger.info('Cleaning labels...')
-        lbled_df = self._clean_labels(data=self.data)
+        data = self.data
+        if clean:
+            self.logger.info('Cleaning labels...')
+            data = self._clean_labels(data=data)
 
         # Extract timestamps
         self.logger.info('Extracting timestamps...')
-        timed_df = self._extract_timestamp(data=lbled_df)
+        timed_df = self._extract_timestamp(data=data)
 
         # Create abs paths
         if image_dir:
