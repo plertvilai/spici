@@ -10,19 +10,25 @@ contact: kevin.le@gmail.com
 """
 from __future__ import print_function, division
 
+# Third Party Imports
+import asyncio
+# Standard Dist
+import datetime
+import http.cookiejar
 import json
 import os
-import numpy as np
-import datetime
-from lxml import html
 import urllib.request as urllib2
-import http.cookiejar
-import pandas as pd
-import asyncio
-import aiohttp
-import aiofiles
-from spc.spctransformer import SPCDataTransformer
 
+import aiofiles
+import aiohttp
+import numpy as np
+import pandas as pd
+from lxml import html
+
+# Project Level Imports
+from spici.helper import SPCDataTransformer
+
+# Module Level Constants
 CAMERAS = ['SPC2' , 'SPCP2', 'SPC-BIG']
 IMG_PARAM = ['image_filename', 'image_id', 'user_labels', 'image_timestamp', 'tags']
 IMGS_PER_PAGE = 500

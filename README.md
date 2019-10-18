@@ -2,6 +2,14 @@
 
 SPCServer - Downloads and uploads data to spc.ucsd.edu
 
+## System requirement
+
+1. Python 3.5 or higher
+2. Example: Create a python environment named 'spici_env' and install required libraries using pip:
+    - `virtualenv spici_env`
+    - `source spici_env/bin/activate`
+    - `pip3 install -r requirements.txt`
+
 ## Usage
 
 Run `spc_go.py` to download images from the spc.ucsd.edu. 
