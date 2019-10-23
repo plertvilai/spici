@@ -45,7 +45,7 @@ class SPCServer(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, daylight_savings=False):
         """ Creates a new SPCServer.
 
         """
@@ -76,6 +76,9 @@ class SPCServer(object):
 
         # Set to true if synchronous image writing is needed (i.e. on faster hard drives like SSDs)
         self.sync_write = False
+
+        # Flag for daylight savings
+        self.daylight_savings = daylight_savings
 
 
 
@@ -436,13 +439,12 @@ class SPCServer(object):
             # Parse date
             dt = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
 
-            # Check if daylight savings time
-            dst = is_dst(dt, timezone="America/Los_Angeles")
             utc_date = calendar.timegm(pytz.timezone(
                 'America/Los_Angeles').localize(dt).utctimetuple())
 
-            # Returns Epoch Unix time
-            if dst:
+            # Check if daylight savings time
+            if self.daylight_savings and is_dst(dt, timezone="America/Los_Angeles"):
+                # Returns Epoch Unix time
                 return (utc_date+3600)*1000
             else:
                 return utc_date*1000
