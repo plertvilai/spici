@@ -47,7 +47,7 @@ class Pipeline():
         self.machine_name = os.path.basename(opt.model_dir)
         cmd = "CUDA_VISIBLE_DEVICES=4 python {} --mode deploy --batch_size 128 --deploy_data {} --model_dir {}"
         cmd = cmd.format(hab_ml_main, self.data_file, opt.model_dir)
-        # os.system(cmd)
+        os.system(cmd)
 
         # create prediction txt file and label txt file for uploading
         self.predictions_csv = self.data_file.strip('.csv') + '-predictions.csv'
