@@ -13,10 +13,16 @@ import pandas as pd
 class SPCDataTransformer():
     """Helper class"""
 
-    def __init__(self, data, logger=None):
-        assert isinstance(data, pd.DataFrame)
+    def __init__(self, data, csv_fname=None, classes=None, logger=None):
         # Initialize Logging
         self.logger = logger if logger else logging.getLogger('spcdata')
+
+        if csv_fname:
+            self.csv_fname = csv_fname
+            self.dataset = pd.read_csv(csv_fname)
+
+        if classes:
+            self.cls2idx, self.idx2cls = self.get_classes(classes)
 
         self.data = data
 
@@ -96,3 +102,50 @@ class SPCDataTransformer():
         df[image_col] = df['image_url'].apply(lambda x: os.path.join(
             image_dir, os.path.basename(x) + '.jpg'))
         return df
+
+    def get_predictions(self, pred_col='pred', verbose=False, decode=False, write=False):
+        """Get the prediction distribution"""
+        if self.idx2cls and decode:
+            self.dataset[pred_col] = self.dataset[pred_col].map(self.idx2cls)
+
+        if verbose:
+            print(self.dataset[pred_col].value_counts())
+        self.pred = self.dataset[pred_col].value_counts().to_dict()
+
+        if write:
+            # writes it in SPC formatting
+            with open('data/predictions.txt', 'w') as f:
+                for idx, row in self.dataset[['image_id', 'pred']].iterrows():
+                    f.write(row['image_id'] + ',' + str(row['pred']) + '\n')
+            f.close()
+            print('Finished writing')
+
+        return self.pred
+
+    def _export_labels(self):
+        pass
+
+    def get_classes(self, filename):
+        """Set class2idx, idx2class encoding/decoding dictionaries"""
+        class_list = SPCDataTransformer._parse_classes(filename)
+        cls2idx = {i: idx for idx, i in enumerate(sorted(class_list))}
+        idx2cls = {idx: i for idx, i in enumerate(sorted(class_list))}
+        return cls2idx, idx2cls
+
+    @staticmethod
+    def _parse_classes(filename):
+        """Parse MODE_data.info file"""
+        lbs_all_classes = []
+        with open(filename, 'r') as f:
+            label_counts = f.readlines()
+        label_counts = label_counts[:-1]
+        for i in label_counts:
+            class_counts = i.strip()
+            class_counts = class_counts.split()
+            class_name = ''
+            for j in class_counts:
+                if not j.isdigit():
+                    class_name += (' ' + j)
+            class_name = class_name.strip()
+            lbs_all_classes.append(class_name)
+        return lbs_all_classes

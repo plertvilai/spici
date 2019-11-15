@@ -1,0 +1,22 @@
+0	Acantharea
+1	Akashiwo
+2	Ceratium falcatiforme or fusus
+3	Ceratium furca
+4	Ceratium other
+5	Chaetoceros socialis
+6	Chattonella
+7	Ciliates
+8	Cochlodinium
+9	Dinophysis
+10	Eucampia
+11	Gyrodinium
+12	Lingulodinium polyedra
+13	Nauplii
+14	Polykrikos
+15	Prorocentrum micans
+16	Prorocentrum spp
+17	Pseudo-nitzschia chain
+18	Sand
+19	Straight diatom chains
+20	Thalassionema or Thalassiothrix chain
+21	detritus
