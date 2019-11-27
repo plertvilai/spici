@@ -38,7 +38,7 @@ class Pipeline():
         self.predictions_csv = None
         self.classes_txt = None
         self.machine_name = None
-        self.spc = SPCServer()
+        self.spc = SPCServer(daylight_savings=True)
 
     def run_app(self, textfile, data_dir, download=False):
         # download images
@@ -104,12 +104,11 @@ class Pipeline():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('SPICI Pipeline')
-    parser.add_argument('--run_app', action='store_false', help='Run entire pipeline')
-    parser.add_argument('--pull', action='store_false', help='Pull SPC images')
-    parser.add_argument('--push', actionn='store_false', help='Push predicted SPC images')
+    parser.add_argument('--run_app', action='store_true', help='Run entire pipeline')
+    parser.add_argument('--pull', action='store_true', help='Pull SPC images')
+    parser.add_argument('--push', action='store_true', help='Push predicted SPC images')
     parser.add_argument('--data', default=None, help='Dataset name to pull/push from. This is represented by the date')
-    parser.add_argument('--download', '-d', action='store_false', help='Download SPC images if pulling')
-    parser.add_argument('')
+    parser.add_argument('--download', '-d', action='store_true', help='Download SPC images if pulling')
     arg = parser.parse_args()
 
     # Initialize pipeline
