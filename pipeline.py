@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve()
@@ -17,7 +18,7 @@ from config.config import opt
 from constants.genericconstants import SPCConstants as SPCCONST
 from spcserver import SPCServer
 from helper import SPCDataTransformer
-
+from hab_ml.data.prepare_db import DatasetGenerator
 
 # Module level constants
 
@@ -82,6 +83,19 @@ class Pipeline():
         self.data_file = output_meta_fname
         print('SUCCESS: Images pulled\n')
 
+    def filtered_pull(self, data):
+        converted_date = datetime.strptime(data, '%Y%m%d').strftime('%Y-%m-%d')
+        gen = DatasetGenerator(csv_file=opt.summer2019_csv, data_dir=opt.meta_dir, labels=None, dates=None)
+        df = gen.data[gen.data['image_date'] == converted_date].reset_index(drop=True)
+        csv_fname = os.path.join(opt.meta_dir, self.pre + data + '.csv')
+        df.to_csv(csv_fname, index=False)
+        print('SUCCESS: Meta file generated')
+        print(f'Dataset saved as {csv_fname}')
+        print(f'Dates pulled: {converted_date}')
+        print(f'Dataset size: {df.shape[0]}')
+        print(f'Label Distribution\n{"-" * 30}\n{df.label.value_counts()}')
+
+
     def push(self):
         """Push data up to the spc website"""
         self.spc.submit_dict[SPCCONST.LBL_SET_NAME] = opt.label_instance_name
@@ -106,6 +120,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('SPICI Pipeline')
     parser.add_argument('--run_app', action='store_true', help='Run entire pipeline')
     parser.add_argument('--pull', action='store_true', help='Pull SPC images')
+    parser.add_argument('--filtered_pull', action='store_true', help='Pull filtered pre-downloaded SPC images')
     parser.add_argument('--push', action='store_true', help='Push predicted SPC images')
     parser.add_argument('--data', default=None, help='Dataset name to pull/push from. This is represented by the date')
     parser.add_argument('--download', '-d', action='store_true', help='Download SPC images if pulling')
@@ -123,6 +138,8 @@ if __name__ == '__main__':
         dataset_name = arg.data
         time_period_txtfile = 'DB/meta/{}/time_period.txt'.format(dataset_name)
         pip.pull(textfile=time_period_txtfile, data_dir=opt.data_dir.format(dataset_name), download=arg.download)
+    elif arg.filtered_pull and arg.data:
+        pip.filtered_pull(data=arg.data)
     # Push data to the spc website
     # elif arg.push and arg.data:
     #     dataset_name = arg.data

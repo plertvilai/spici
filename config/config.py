@@ -64,6 +64,8 @@ class Config(Environment):
     tag = 'hab_24'
     is_machine = True
 
+    summer2019_csv = 'DB/csv/hab_in_situ_summer2019.csv'
+
     def __init__(self, env_type):
         super().__init__(env_type)
 
