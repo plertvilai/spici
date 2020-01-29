@@ -1,6 +1,7 @@
 """Pipeline Initialization for HAB-ML on Pier Deployment"""
 # Standard dist imports
 import argparse
+import logging
 import os
 import sys
 from datetime import datetime
@@ -19,6 +20,8 @@ from constants.genericconstants import SPCConstants as SPCCONST
 from spcserver import SPCServer
 from helper import SPCDataTransformer
 from hab_ml.data.prepare_db import DatasetGenerator
+from hab_ml.utils.logger import Logger
+from hab_ml.utils.constants import Constants as MLCONST
 
 # Module level constants
 
@@ -83,17 +86,48 @@ class Pipeline():
         self.data_file = output_meta_fname
         print('SUCCESS: Images pulled\n')
 
-    def filtered_pull(self, data):
+    def filtered_pull(self, data, hab_eval=True):
+        fname = self.pre + data
+        log_fname = os.path.join(opt.meta_dir, fname + '.log')
+        Logger(log_fname, logging.INFO, False)
+        logger = logging.getLogger('pull_data')
+        Logger.section_break(title='SPICI')
+
         converted_date = datetime.strptime(data, '%Y%m%d').strftime('%Y-%m-%d')
         gen = DatasetGenerator(csv_file=opt.summer2019_csv, data_dir=opt.meta_dir, labels=None, dates=None)
         df = gen.data[gen.data['image_date'] == converted_date].reset_index(drop=True)
-        csv_fname = os.path.join(opt.meta_dir, self.pre + data + '.csv')
+
+        logger.info('SUCCESS: Meta file generated')
+        logger.info(f'Dates pulled: {converted_date}')
+        logger.info(f'Dataset size: {df.shape[0]}')
+        logger.info(f'Label Distribution\n{"-" * 30}\n{df.label.value_counts()}')
+
+        if hab_eval:
+            df = Pipeline()._reformat_lab_data(df)
+
+        csv_fname = os.path.join(opt.meta_dir, fname + '.csv')
         df.to_csv(csv_fname, index=False)
-        print('SUCCESS: Meta file generated')
-        print(f'Dataset saved as {csv_fname}')
-        print(f'Dates pulled: {converted_date}')
-        print(f'Dataset size: {df.shape[0]}')
-        print(f'Label Distribution\n{"-" * 30}\n{df.label.value_counts()}')
+        logger.info(f'Dataset saved as {csv_fname}')
+
+    @staticmethod
+    def _reformat_lab_data(data):
+        df = data.copy()
+        logger = logging.getLogger('_reformat_lab_data')
+        logger.debug('Reformatting dataset...\n')
+
+        hab_species = open('/data6/phytoplankton-db/hab.txt', 'r').read().splitlines()[
+                      :-1]
+
+        def label_mapping(x):
+            if x in hab_species:
+                return x
+            else:
+                return 'Other'
+
+        df[MLCONST.LABEL] = df[MLCONST.LABEL].apply(label_mapping)
+        logger.info(f'HAB Lbl Distribution\n{"-" * 30}\n'
+                    f'{df[MLCONST.LABEL].value_counts()}')
+        return df
 
 
     def push(self):
