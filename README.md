@@ -25,7 +25,7 @@ The input requires one file:
 
 This example shows you how to both download and upload images to spc.ucsd.edu using python.
 ```
-    python spc_go.py --search-param-file=examples/summer2019/time_period.txt --image-output-path=examples/summer2019/images --meta-output-path=examples/summer2019/meta_data.csv -d=True
+    python spc_go.py --search-param-file=examples/summer2019/time_period.txt --image-output-path=examples/summer2019/images --meta-output-path=examples/summer2019/meta_data.csv -d
 ```
 
 This downloads images for the 3 following time intervals to `examples/summer2019/images`
@@ -40,6 +40,17 @@ The output consists of two files:
 
 1. A meta data file (in csv file formating) containing the image's id, min/max length, timestamp, etc.
 2. A collection of images pulled from the website based off the desired search parameters.
+
+```
+Downloading images...
+Number of urls: 42
+Number of results: 2708
+Number of results: 573
+...
+..
+.
+Downloaded 39538 images in 0:01:29.012763 (444 images/sec)
+```
 
 ### Upload
 The input requires two files:
