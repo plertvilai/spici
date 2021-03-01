@@ -10,6 +10,8 @@ SPCServer - Downloads and uploads data to spc.ucsd.edu
     - `source spici_env/bin/activate`
     - `pip3 install -r requirements.txt`
 
+Conda also works as well.
+
 ## Usage
 
 Run `spc_go.py` to download images from the spc.ucsd.edu. 
@@ -22,17 +24,17 @@ The input requires one file:
 
 
 This example shows you how to both download and upload images to spc.ucsd.edu using python.
+```
+    python spc_go.py --search-param-file=examples/summer2019/time_period.txt --image-output-path=examples/summer2019/images --meta-output-path=examples/summer2019/meta_data.csv -d=True
+```
 
-    $ spc_go.py --search-param-file=examples/prorocentrum/time_period.txt 
-    --image-output-path=examples/prorocentrum/images --meta-output-path=examples/prorocentrum/meta_data.csv -d=True
-
-This downloads images for the 3 following time intervals to `examples/prorocentrum/images`
-
-    2017-3-20 01:00:00, 2017-3-20 15:30:59, 0.03, 0.07, SPCP2
-    2017-3-27 13:00:00, 2017-3-27 13:30:00, 0.03, 0.07, SPCP2
-    2017-4-10 13:00:00, 2017-4-10 13:40:00, 0.03, 0.07, SPCP2
-
-It will also output the meta data csv file to `examples/prorocentrum/meta_data.csv`
+This downloads images for the 3 following time intervals to `examples/summer2019/images`
+```
+    2019-05-23 09:53:00,2019-05-23 10:27:00,0.03,1.0,SPCP2
+    2019-05-28 10:11:00,2019-05-28 10:45:00,0.03,1.0,SPCP2
+    2019-05-30 09:58:00,2019-05-30 10:32:00,0.03,1.0,SPCP2
+```
+It will also output the meta data csv file to `examples/summer2019/meta_data.csv`
 
 The output consists of two files:
 
