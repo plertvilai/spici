@@ -51,6 +51,30 @@ Number of results: 573
 .
 Downloaded 39538 images in 0:01:29.012763 (444 images/sec)
 ```
+### Generate random dates
+To randomly sample data from the SPC server, run the script called `generate_dates.py`
+Note that the parameters in the config has to be changed to the desired parameters before running the script.
+Also, specify the name of the output text file in the parameter `output_csv`. 
+
+```
+output_csv = "./examples/time_period.txt"
+config = {
+        "start_date": "2021-01-01",
+        "end_date": "2021-08-30",
+        "n_dates": 100,
+        "start_time": "18:00",
+        "offset_hours": 5,
+        "offset_min": 0,
+        "min_camera": 0.03,
+        "max_camera": 1.0,
+    }
+```
+When the config is modified, run the script with 
+```
+python generate_dates.py
+```
+and the output text file will be generated. 
+
 
 ### Upload
 The input requires two files:
@@ -87,4 +111,4 @@ spc.upload(login_url=login_url,
            account_info=account_info,
            textfile=predictions,
            label_file=label_file)
-
+```
