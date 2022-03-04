@@ -7,6 +7,8 @@ machine labeled annotations.
 Author: Kevin Le
 contact: kevin.le@gmail.com
 
+Updated by Pichaya Lertvilai for Windows deployment
+
 """
 from __future__ import print_function, division
 
@@ -25,6 +27,7 @@ import numpy as np
 import pandas as pd
 from lxml import html
 
+import time
 # Project Level Imports
 from spici.helper import SPCDataTransformer
 
@@ -51,7 +54,7 @@ class SPCServer(object):
         """
 
         # Dates initialized for uploading purposes
-        date = datetime.datetime.now().strftime('%s')
+        date = str(int(time.mktime(datetime.datetime.now().timetuple())))
         self.date_submitted = str(int(date)*1000)
         self.date_started = str((int(date)*1000)-500)
 
